@@ -8,9 +8,11 @@ import authConfig from "../config/auth";
 let io: SocketIO;
 
 export const initIO = (httpServer: Server): SocketIO => {
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+
   io = new SocketIO(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL
+      origin: frontendUrl
     }
   });
 
@@ -18,7 +20,7 @@ export const initIO = (httpServer: Server): SocketIO => {
     const { token } = socket.handshake.query;
     let tokenData = null;
     try {
-      tokenData = verify(token, authConfig.secret);
+      tokenData = verify(token as string, authConfig.secret);
       logger.debug(JSON.stringify(tokenData), "io-onConnection: tokenData");
     } catch (error) {
       logger.error(JSON.stringify(error), "Error decoding token");
